@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Open Diophantine Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#dashboard" aria-label="Open Diophantine Tracker home">
+        <span class="brand-mark" aria-hidden="true">OD</span>
+        <span>
+          <strong>Open Diophantine Tracker</strong>
+          <small>arXiv:2404.08518 progress board</small>
+        </span>
+      </a>
+      <nav class="topnav" aria-label="Main navigation">
+        <a href="#explorer">Explorer</a>
+        <a href="#progress">Progress</a>
+        <a href="#updates">Updates</a>
+        <a href="#curator">Curator</a>
+      </nav>
+    </header>
+
+    <main>
+      <section id="dashboard" class="dashboard-section">
+        <div class="section-inner dashboard-grid">
+          <div class="intro-copy">
+            <p class="eyebrow">Seeded from Bogdan Grechuk, v8, 13 Jul 2026</p>
+            <h1>Track the open equations, solved removals, and evidence trail in one searchable board.</h1>
+            <p class="lead">
+              A live-style monitor for the paper's open Diophantine equations: current open entries, solved or removed
+              history from the change log, local status overrides, random browsing, and exportable review notes.
+            </p>
+            <div class="hero-actions" aria-label="Source links">
+              <a class="button primary" href="https://arxiv.org/abs/2404.08518" target="_blank" rel="noreferrer">Open arXiv</a>
+              <a class="button" href="https://arxiv.org/pdf/2404.08518" target="_blank" rel="noreferrer">Paper PDF</a>
+            </div>
+          </div>
+
+          <div class="stats-grid" aria-label="Tracker statistics">
+            <article class="stat-card">
+              <span class="stat-label">Current open entries</span>
+              <strong id="statOpen">0</strong>
+              <small>Tables and narrative entries preserved as paper appearances.</small>
+            </article>
+            <article class="stat-card">
+              <span class="stat-label">Solved or removed archive</span>
+              <strong id="statSolved">0</strong>
+              <small>Seeded from the paper's version-change log.</small>
+            </article>
+            <article class="stat-card">
+              <span class="stat-label">Smallest open size</span>
+              <strong id="statSmallestH">0</strong>
+              <small>By H among open entries.</small>
+            </article>
+            <article class="stat-card">
+              <span class="stat-label">Local edits</span>
+              <strong id="statLocal">0</strong>
+              <small>Stored only in this browser.</small>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="progress" class="progress-section">
+        <div class="section-inner split-layout">
+          <div>
+            <div class="section-heading">
+              <p class="eyebrow">Progress map</p>
+              <h2>Status by problem family</h2>
+            </div>
+            <div id="progressChart" class="progress-chart" role="img" aria-label="Open and solved entries by problem family"></div>
+          </div>
+          <aside class="watchlist" aria-labelledby="watchlist-title">
+            <div class="section-heading compact">
+              <p class="eyebrow">Triage</p>
+              <h2 id="watchlist-title">Smallest open entries</h2>
+            </div>
+            <div id="smallestOpen" class="smallest-list"></div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="explorer" class="explorer-section">
+        <div class="section-inner">
+          <div class="section-heading explorer-heading">
+            <div>
+              <p class="eyebrow">Problem explorer</p>
+              <h2>Search, filter, and mark status</h2>
+            </div>
+            <div class="quick-actions">
+              <button id="randomOpen" class="button" type="button">Random open</button>
+              <button id="randomSolved" class="button" type="button">Random solved</button>
+            </div>
+          </div>
+
+          <div class="filters" aria-label="Problem filters">
+            <label class="search-field">
+              <span>Search</span>
+              <input id="searchInput" type="search" placeholder="equation, tag, table, note">
+            </label>
+            <label>
+              <span>Problem</span>
+              <select id="problemFilter"></select>
+            </label>
+            <label>
+              <span>Source</span>
+              <select id="sourceFilter"></select>
+            </label>
+            <label>
+              <span>Tag</span>
+              <select id="tagFilter"></select>
+            </label>
+            <label>
+              <span>Sort</span>
+              <select id="sortSelect">
+                <option value="metric">Smallest metric first</option>
+                <option value="problem">Problem family</option>
+                <option value="source">Paper source</option>
+                <option value="status">Status</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="status-tabs" role="tablist" aria-label="Status filter">
+            <button class="status-tab active" data-status="open" type="button">Open</button>
+            <button class="status-tab" data-status="solved" type="button">Solved</button>
+            <button class="status-tab" data-status="partial" type="button">Partial</button>
+            <button class="status-tab" data-status="watching" type="button">Watching</button>
+            <button class="status-tab" data-status="all" type="button">All</button>
+          </div>
+
+          <div class="results-layout">
+            <div>
+              <div class="results-meta">
+                <strong id="resultCount">0 entries</strong>
+                <span id="activeFilters">Showing current open entries.</span>
+              </div>
+              <div id="problemList" class="problem-list"></div>
+            </div>
+            <aside id="detailPanel" class="detail-panel" aria-live="polite"></aside>
+          </div>
+        </div>
+      </section>
+
+      <section id="updates" class="updates-section">
+        <div class="section-inner">
+          <div class="section-heading">
+            <p class="eyebrow">Open to solved</p>
+            <h2>Version-change feed</h2>
+            <p>
+              This feed follows the paper's own change log. Dates are arXiv version dates where available, not necessarily
+              the date a mathematical solution was first discovered.
+            </p>
+          </div>
+          <div id="updateLog" class="update-log"></div>
+        </div>
+      </section>
+
+      <section id="curator" class="curator-section">
+        <div class="section-inner curator-grid">
+          <div>
+            <div class="section-heading">
+              <p class="eyebrow">Curator mode</p>
+              <h2>Add local evidence</h2>
+              <p>
+                Use this to track a claim before it belongs in the canonical seed data. Everything here stays local until
+                you export it.
+              </p>
+            </div>
+            <form id="newProblemForm" class="curator-form">
+              <label>
+                <span>Equation or claim</span>
+                <input id="newEquation" type="text" required placeholder="x^4+y^3+z^2+1=0">
+              </label>
+              <label>
+                <span>Problem family</span>
+                <select id="newProblem"></select>
+              </label>
+              <label>
+                <span>Status</span>
+                <select id="newStatus">
+                  <option value="open">Open</option>
+                  <option value="watching">Watching</option>
+                  <option value="partial">Partial</option>
+                  <option value="solved">Solved</option>
+                </select>
+              </label>
+              <label>
+                <span>Evidence link or note</span>
+                <textarea id="newNote" rows="4" placeholder="MathOverflow link, arXiv reference, proof sketch, verifier notes"></textarea>
+              </label>
+              <button class="button primary" type="submit">Add local entry</button>
+            </form>
+          </div>
+
+          <div class="data-tools">
+            <h3>Data tools</h3>
+            <p>
+              Export local overrides and review entries as JSON. Importing merges entries with the current browser state.
+            </p>
+            <div class="tool-row">
+              <button id="exportButton" class="button" type="button">Export JSON</button>
+              <label class="file-button">
+                Import JSON
+                <input id="importFile" type="file" accept="application/json">
+              </label>
+            </div>
+            <textarea id="exportOutput" rows="10" readonly placeholder="Exported JSON appears here."></textarea>
+            <button id="resetLocalButton" class="button danger" type="button">Clear local edits</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="section-inner">
+        <p>
+          Data seed: arXiv:2404.08518v8 by Bogdan Grechuk. This is a local monitoring interface, not an official version
+          of the paper.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>
