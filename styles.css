@@ -286,6 +286,50 @@ h3 {
   font-size: 1.35rem;
 }
 
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.chart-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 24px;
+}
+
+.chart-legend i {
+  display: inline-block;
+  width: 18px;
+  height: 10px;
+  border-radius: 999px;
+}
+
+.legend-open {
+  background: var(--blue);
+}
+
+.legend-solved {
+  background: var(--green);
+}
+
+.legend-partial {
+  background: var(--amber);
+}
+
+.legend-watching {
+  background: var(--teal);
+}
+
+.legend-total {
+  border: 1px solid rgba(216, 224, 230, 0.95);
+  background: #edf2f5;
+}
+
 .progress-chart {
   display: grid;
   gap: 10px;
