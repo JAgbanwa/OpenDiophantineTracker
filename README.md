@@ -17,14 +17,18 @@ Live site: <https://jagbanwa.github.io/OpenDiophantineTracker/>
 - Search by equation, source table, tag, note, or problem family.
 - Filter by status, problem, source, and tag.
 - Browse random open or solved entries.
+- MathJax rendering for equations.
+- A compact catalogue-style header with paper citation.
 - Progress map by problem family.
 - Progress-map legend:
   - Blue: open entries.
   - Green: solved or removed entries.
   - Amber: partial progress.
   - Teal: watching.
-  - Pale track: total capacity for that problem family.
-- Detail panel with paper source, metric, notes, tags, and evidence links.
+  - Pale track: all tracked entries in that problem family.
+- Annotated card view for reading entries one at a time.
+- Mathematical index view with status, metric, equation, problem, source, and notes columns.
+- Detail panel with citation-style provenance, metric, notes, tags, and evidence links.
 - Curator mode for adding local evidence before it belongs in the canonical seed data.
 - JSON export/import for local overrides and review entries.
 
@@ -43,6 +47,9 @@ change log.
 ## Local Use
 
 Open `index.html` directly in a browser. No build step is required.
+
+The public site loads MathJax from jsDelivr to render equations. Without network access, the tracker still works, but
+equations may appear in TeX source form.
 
 Local edits are stored in browser `localStorage`. Use the Curator section to export or import that state as JSON.
 
