@@ -4,7 +4,19 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Open Diophantine Tracker</title>
-    <link rel="stylesheet" href="styles.css?v=196abe6">
+    <link rel="stylesheet" href="styles.css?v=math-professional-1">
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["\\(", "\\)"]],
+          processEscapes: true
+        },
+        options: {
+          skipHtmlTags: ["script", "noscript", "style", "textarea", "pre", "code", "select", "option"]
+        }
+      };
+    </script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
     <script src="app.js" defer></script>
   </head>
   <body>
@@ -28,11 +40,15 @@
       <section id="dashboard" class="dashboard-section">
         <div class="section-inner dashboard-grid">
           <div class="intro-copy">
-            <p class="eyebrow">Seeded from Bogdan Grechuk, v8, 13 Jul 2026</p>
-            <h1>Track the open equations, solved removals, and evidence trail in one searchable board.</h1>
+            <p class="eyebrow">Mathematical catalogue</p>
+            <h1>Open Diophantine Tracker</h1>
+            <p class="paper-citation">
+              Bogdan Grechuk, <cite>A systematic approach to Diophantine equations: open problems</cite>,
+              arXiv:2404.08518v8, revised 13 Jul 2026.
+            </p>
             <p class="lead">
-              A live-style monitor for the paper's open Diophantine equations: current open entries, solved or removed
-              history from the change log, local status overrides, random browsing, and exportable review notes.
+              A searchable catalogue of the paper's open equations, solved removals, status changes, evidence links,
+              and local curator notes.
             </p>
             <div class="hero-actions" aria-label="Source links">
               <a class="button primary" href="https://arxiv.org/abs/2404.08518" target="_blank" rel="noreferrer">Open arXiv</a>
@@ -76,7 +92,7 @@
                 <span><i class="legend-solved" aria-hidden="true"></i>Solved</span>
                 <span><i class="legend-partial" aria-hidden="true"></i>Partial</span>
                 <span><i class="legend-watching" aria-hidden="true"></i>Watching</span>
-                <span><i class="legend-total" aria-hidden="true"></i>Total capacity</span>
+                <span><i class="legend-total" aria-hidden="true"></i>All entries in family</span>
               </div>
             </div>
             <div id="progressChart" class="progress-chart" role="img" aria-label="Open and solved entries by problem family"></div>
@@ -138,6 +154,11 @@
             <button class="status-tab" data-status="partial" type="button">Partial</button>
             <button class="status-tab" data-status="watching" type="button">Watching</button>
             <button class="status-tab" data-status="all" type="button">All</button>
+          </div>
+
+          <div class="view-tabs" role="tablist" aria-label="Result view">
+            <button class="view-tab active" data-view="cards" type="button">Annotated cards</button>
+            <button class="view-tab" data-view="index" type="button">Mathematical index</button>
           </div>
 
           <div class="results-layout">

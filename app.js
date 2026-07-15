@@ -510,6 +510,7 @@ const updateEvents = [
 
 const STORAGE_KEY = "open-diophantine-tracker-state";
 let viewStatus = "open";
+let resultView = "cards";
 let selectedId = "";
 let state = loadState();
 
@@ -567,9 +568,22 @@ function escapeHtml(value) {
 }
 
 function formatEquation(equation) {
-  return escapeHtml(equation)
-    .replace(/\^(\d+(?:\.\d+)?)/g, "<sup>$1</sup>")
-    .replace(/\+\/-/g, "+/-");
+  return `<span class="math-equation">\\(${escapeHtml(equationToTex(equation))}\\)</span>`;
+}
+
+function equationToTex(equation) {
+  return String(equation)
+    .replace(/\+\/-/g, "\\pm")
+    .replace(/>=/g, "\\ge")
+    .replace(/<=/g, "\\le")
+    .replace(/!=/g, "\\ne")
+    .replace(/\*/g, "\\cdot ");
+}
+
+function typesetMath(scope = document.body) {
+  if (!window.MathJax?.typesetPromise) return;
+  window.MathJax.typesetClear?.([scope]);
+  window.MathJax.typesetPromise([scope]).catch(() => {});
 }
 
 function statusLabel(status) {
@@ -584,6 +598,36 @@ function statusLabel(status) {
 
 function problemName(problem) {
   return problemDefinitions[problem]?.short || problem;
+}
+
+function problemCode(problem) {
+  if (/^P\d+$/.test(problem)) {
+    return `Problem ${problem.slice(1)}`;
+  }
+  const labels = {
+    D1: "Section 3",
+    Fermat: "Fermat type",
+  };
+  return labels[problem] || problem;
+}
+
+function problemBadge(entry) {
+  return `${problemCode(entry.problem)} · ${problemName(entry.problem)}`;
+}
+
+function metricLabel(entry, spaced = false) {
+  if (!entry.metric) return entry.metricType;
+  return spaced ? `${entry.metricType} = ${entry.metric}` : `${entry.metricType}=${entry.metric}`;
+}
+
+function sourceCitation(entry) {
+  if (entry.source === "Local curator") {
+    return "Local curator entry; not part of the canonical paper seed.";
+  }
+  if (entry.resolvedIn || entry.id.startsWith("archive-")) {
+    return `Grechuk, arXiv:${SOURCE.arxivId}${SOURCE.version}, ${entry.source}`;
+  }
+  return `Grechuk, arXiv:${SOURCE.arxivId}${SOURCE.version}, ${entry.source}`;
 }
 
 function unique(values) {
@@ -739,12 +783,14 @@ function renderProgress() {
   document.querySelector("#smallestOpen").innerHTML = smallest
     .map((entry) => `
       <button class="small-card" type="button" data-select="${entry.id}">
-        <strong>${escapeHtml(entry.metricType)}=${escapeHtml(entry.metric)}</strong>
-        <span>${escapeHtml(problemName(entry.problem))}</span>
+        <strong>${escapeHtml(metricLabel(entry, true))}</strong>
+        <span>${escapeHtml(problemBadge(entry))}</span>
         <span class="equation">${formatEquation(entry.equation)}</span>
       </button>
     `)
     .join("");
+
+  typesetMath(document.querySelector("#progress"));
 }
 
 function entryLinks(entry) {
@@ -760,19 +806,19 @@ function entryLinks(entry) {
 }
 
 function renderProblemCard(entry) {
-  const metric = entry.metric ? `${entry.metricType}=${entry.metric}` : entry.metricType;
   const selectedClass = entry.id === selectedId ? " selected" : "";
   return `
     <article class="problem-card${selectedClass}" data-id="${entry.id}">
       <div class="problem-topline">
         <div class="meta-line">
           <span class="pill status-${entry.status}">${statusLabel(entry.status)}</span>
-          <span class="pill neutral">${escapeHtml(problemName(entry.problem))}</span>
-          <span class="pill neutral">${escapeHtml(metric)}</span>
+          <span class="pill neutral">${escapeHtml(problemBadge(entry))}</span>
+          <span class="pill neutral">${escapeHtml(metricLabel(entry, true))}</span>
         </div>
         <span class="pill neutral">${escapeHtml(entry.source)}</span>
       </div>
       <div class="equation">${formatEquation(entry.equation)}</div>
+      <cite class="source-citation">${escapeHtml(sourceCitation(entry))}</cite>
       <p>${escapeHtml(entry.note)}</p>
       <div class="tag-list">${entry.tags.map((tag) => `<span class="tag">#${escapeHtml(tag)}</span>`).join("")}</div>
       <div class="card-actions">
@@ -784,19 +830,66 @@ function renderProblemCard(entry) {
   `;
 }
 
+function renderIndex(entries) {
+  if (!entries.length) {
+    return `<div class="problem-card"><strong>No entries match.</strong><p>Try clearing a filter or switching status tabs.</p></div>`;
+  }
+
+  return `
+    <div class="index-table-wrap">
+      <table class="problem-index">
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Metric</th>
+            <th>Equation</th>
+            <th>Problem</th>
+            <th>Source</th>
+            <th>Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${entries.map((entry) => `
+            <tr class="${entry.id === selectedId ? "selected" : ""}" data-id="${entry.id}">
+              <td><span class="pill status-${entry.status}">${statusLabel(entry.status)}</span></td>
+              <td>${escapeHtml(metricLabel(entry, true))}</td>
+              <td>
+                <button class="equation-link" type="button" data-action="details" data-id="${entry.id}">
+                  <span class="equation">${formatEquation(entry.equation)}</span>
+                </button>
+              </td>
+              <td>
+                <strong>${escapeHtml(problemCode(entry.problem))}</strong>
+                <small>${escapeHtml(problemName(entry.problem))}</small>
+              </td>
+              <td><cite>${escapeHtml(sourceCitation(entry))}</cite></td>
+              <td>${escapeHtml(entry.note)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
 function renderList() {
   const entries = filteredEntries();
-  if (!selectedId || !allEntries().some((entry) => entry.id === selectedId)) {
+  if (!selectedId || !entries.some((entry) => entry.id === selectedId)) {
     selectedId = entries[0]?.id || allEntries()[0]?.id || "";
   }
 
   document.querySelector("#resultCount").textContent = `${entries.length} ${entries.length === 1 ? "entry" : "entries"}`;
   document.querySelector("#activeFilters").textContent = describeFilters();
-  document.querySelector("#problemList").innerHTML = entries.length
-    ? entries.map(renderProblemCard).join("")
-    : `<div class="problem-card"><strong>No entries match.</strong><p>Try clearing a filter or switching status tabs.</p></div>`;
+  const list = document.querySelector("#problemList");
+  list.className = resultView === "index" ? "problem-index-list" : "problem-list";
+  list.innerHTML = resultView === "index"
+    ? renderIndex(entries)
+    : entries.length
+      ? entries.map(renderProblemCard).join("")
+      : `<div class="problem-card"><strong>No entries match.</strong><p>Try clearing a filter or switching status tabs.</p></div>`;
 
   renderDetail();
+  typesetMath(document.querySelector("#explorer"));
 }
 
 function describeFilters() {
@@ -819,8 +912,9 @@ function renderDetail() {
 
   const note = entry.curatorNote ? `<div class="note-box"><strong>Curator note</strong><br>${escapeHtml(entry.curatorNote)}</div>` : "";
   panel.innerHTML = `
-    <h3>${escapeHtml(problemName(entry.problem))}</h3>
+    <h3>${escapeHtml(problemBadge(entry))}</h3>
     <div class="equation">${formatEquation(entry.equation)}</div>
+    <cite class="source-citation">${escapeHtml(sourceCitation(entry))}</cite>
     <div class="detail-actions">
       <select data-action="status-select" data-id="${entry.id}" aria-label="Status for selected entry">
         ${["open", "watching", "partial", "solved"].map((status) => `
@@ -831,8 +925,8 @@ function renderDetail() {
     <div class="detail-grid">
       <div class="detail-row"><strong>Problem</strong><span>${escapeHtml(problemDefinitions[entry.problem]?.full || entry.problem)}</span></div>
       <div class="detail-row"><strong>Category</strong><span>${escapeHtml(entry.category)}</span></div>
-      <div class="detail-row"><strong>Source</strong><span>${escapeHtml(entry.source)}</span></div>
-      <div class="detail-row"><strong>Metric</strong><span>${escapeHtml(entry.metric ? `${entry.metricType}=${entry.metric}` : entry.metricType)}</span></div>
+      <div class="detail-row"><strong>Citation</strong><span>${escapeHtml(sourceCitation(entry))}</span></div>
+      <div class="detail-row"><strong>Metric</strong><span>${escapeHtml(metricLabel(entry, true))}</span></div>
       <div class="detail-row"><strong>Status</strong><span>${escapeHtml(statusLabel(entry.status))}</span></div>
     </div>
     <p>${escapeHtml(entry.note)}</p>
@@ -954,6 +1048,14 @@ function bindEvents() {
     tab.addEventListener("click", () => {
       viewStatus = tab.dataset.status;
       document.querySelectorAll(".status-tab").forEach((button) => button.classList.toggle("active", button === tab));
+      renderList();
+    });
+  });
+
+  document.querySelectorAll(".view-tab").forEach((tab) => {
+    tab.addEventListener("click", () => {
+      resultView = tab.dataset.view;
+      document.querySelectorAll(".view-tab").forEach((button) => button.classList.toggle("active", button === tab));
       renderList();
     });
   });
