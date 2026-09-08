@@ -207,6 +207,38 @@ h3 {
   align-items: center;
 }
 
+.sync-status {
+  display: flex;
+  align-items: center;
+  gap: 8px 12px;
+  flex-wrap: wrap;
+  margin-top: 15px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.sync-status-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #285947;
+  font-weight: 800;
+}
+
+.sync-status-label i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 0 3px var(--green-soft);
+}
+
+.sync-status a {
+  color: var(--blue);
+  font-weight: 700;
+  text-underline-offset: 3px;
+}
+
 .button,
 .file-button {
   display: inline-flex;

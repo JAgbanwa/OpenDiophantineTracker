@@ -1,10 +1,13 @@
+const PAPER_SYNC = window.PAPER_SYNC || { paper: {}, resolvedEntries: [], openAdditions: [], events: [] };
+const BASE_SOURCE_VERSION = "v8";
+
 const SOURCE = {
   paperTitle: "A systematic approach to Diophantine equations: open problems",
   author: "Bogdan Grechuk",
-  arxivId: "2404.08518",
-  version: "v8",
-  lastRevised: "13 Jul 2026",
-  retrieved: "14 Jul 2026",
+  arxivId: PAPER_SYNC.paper?.arxivId || "2404.08518",
+  version: PAPER_SYNC.paper?.version || BASE_SOURCE_VERSION,
+  lastRevised: PAPER_SYNC.paper?.revisionDate || "13 Jul 2026",
+  retrieved: PAPER_SYNC.paper?.checkedAt || "2026-07-14",
 };
 
 const problemDefinitions = {
@@ -69,7 +72,7 @@ function rows(source, problem, category, metricType, rawRows, tags = [], note = 
       tags: [...tags, ...localTags],
       baseStatus: "open",
       links: extra.links || [],
-      addedIn: SOURCE.version,
+      addedIn: BASE_SOURCE_VERSION,
     };
   });
 }
@@ -87,7 +90,7 @@ function single(id, source, problem, category, metricType, metric, equation, tag
     note,
     baseStatus: "open",
     links,
-    addedIn: SOURCE.version,
+    addedIn: BASE_SOURCE_VERSION,
   };
 }
 
@@ -551,7 +554,26 @@ function allEntries() {
     addedIn: "local",
   }));
 
-  return [...currentOpen, ...solvedArchive, ...customEntries].map((entry) => ({
+  const resolutions = new Map((PAPER_SYNC.resolvedEntries || []).map((resolution) => [resolution.id, resolution]));
+  const trackedOpen = [...currentOpen, ...(PAPER_SYNC.openAdditions || [])];
+  const synchronizedOpen = trackedOpen.filter((entry) => !resolutions.has(entry.id));
+  const synchronizedArchive = trackedOpen
+    .filter((entry) => resolutions.has(entry.id))
+    .map((entry) => {
+      const resolution = resolutions.get(entry.id);
+      return {
+        ...entry,
+        note: resolution.note || `Removed from the paper's open list in ${resolution.resolvedIn}.`,
+        tags: unique([...(entry.tags || []), "archive", "automatic-sync"]),
+        links: unique([...(entry.links || []), ...(resolution.links || [])]),
+        baseStatus: "solved",
+        resolvedIn: resolution.resolvedIn,
+        resolvedDate: resolution.resolvedDate,
+        detectedBy: resolution.detectedBy,
+      };
+    });
+
+  return [...synchronizedOpen, ...solvedArchive, ...synchronizedArchive, ...customEntries].map((entry) => ({
     ...entry,
     status: state.overrides[entry.id] || entry.baseStatus,
     curatorNote: state.notes[entry.id] || "",
@@ -573,6 +595,7 @@ function formatEquation(equation) {
 
 function equationToTex(equation) {
   return String(equation)
+    .replace(/\^(\d+)/g, "^{$1}")
     .replace(/\+\/-/g, "\\pm")
     .replace(/>=/g, "\\ge")
     .replace(/<=/g, "\\le")
@@ -940,7 +963,8 @@ function renderDetail() {
 }
 
 function renderUpdates() {
-  document.querySelector("#updateLog").innerHTML = updateEvents.map((event) => `
+  const synchronizedEvents = [...updateEvents, ...(PAPER_SYNC.events || [])];
+  document.querySelector("#updateLog").innerHTML = synchronizedEvents.map((event) => `
     <article class="update-card">
       <div>
         <span class="version">${escapeHtml(event.version)}</span>
@@ -952,6 +976,32 @@ function renderUpdates() {
       </div>
     </article>
   `).join("");
+}
+
+function formatSyncDate(value) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value || "")) return value || "not recorded";
+  const date = new Date(`${value}T00:00:00Z`);
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(date);
+}
+
+function initPaperMetadata() {
+  const paper = PAPER_SYNC.paper || {};
+  const version = paper.version || SOURCE.version;
+  const checkedAt = formatSyncDate(paper.checkedAt || SOURCE.retrieved);
+  const versionUrl = paper.versionUrl || `https://arxiv.org/abs/${SOURCE.arxivId}${version}`;
+  const changeUrl = paper.changeUrl || versionUrl;
+
+  document.querySelector("#brandPaperVersion").textContent = `arXiv:${SOURCE.arxivId}${version} progress board`;
+  document.querySelector("#paperCitationVersion").textContent = version;
+  document.querySelector("#paperRevisionDate").textContent = paper.revisionDate || SOURCE.lastRevised;
+  document.querySelector("#syncStatusText").textContent = `Current through ${version}; checked ${checkedAt}.`;
+  document.querySelector("#syncSourceLink").href = changeUrl;
+  document.querySelector("#footerPaperVersion").textContent = `arXiv:${SOURCE.arxivId}${version}`;
 }
 
 function renderAll() {
@@ -1120,7 +1170,8 @@ function bindEvents() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  selectedId = currentOpen[0]?.id || "";
+  initPaperMetadata();
+  selectedId = allEntries().find((entry) => entry.baseStatus === "open")?.id || "";
   bindEvents();
   renderAll();
 });

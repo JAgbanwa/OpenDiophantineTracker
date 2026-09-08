@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Open Diophantine Tracker</title>
-    <link rel="stylesheet" href="styles.css?v=math-professional-1">
+    <link rel="stylesheet" href="styles.css?v=paper-sync-1">
     <script>
       window.MathJax = {
         tex: {
@@ -17,7 +17,8 @@
       };
     </script>
     <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
-    <script src="app.js?v=math-professional-1" defer></script>
+    <script src="data/paper-sync.js?v=paper-sync-1" defer></script>
+    <script src="app.js?v=paper-sync-1" defer></script>
   </head>
   <body>
     <header class="topbar">
@@ -25,7 +26,7 @@
         <span class="brand-mark" aria-hidden="true">OD</span>
         <span>
           <strong>Open Diophantine Tracker</strong>
-          <small>arXiv:2404.08518 progress board</small>
+          <small id="brandPaperVersion">arXiv:2404.08518v9 progress board</small>
         </span>
       </a>
       <nav class="topnav" aria-label="Main navigation">
@@ -44,7 +45,8 @@
             <h1>Open Diophantine Tracker</h1>
             <p class="paper-citation">
               Bogdan Grechuk, <cite>A systematic approach to Diophantine equations: open problems</cite>,
-              arXiv:2404.08518v8, revised 13 Jul 2026.
+              arXiv:2404.08518<span id="paperCitationVersion">v9</span>, revised
+              <time id="paperRevisionDate" datetime="2026-08-30">30 Aug 2026</time>.
             </p>
             <p class="lead">
               A searchable catalogue of the paper's open equations, solved removals, status changes, evidence links,
@@ -53,6 +55,11 @@
             <div class="hero-actions" aria-label="Source links">
               <a class="button primary" href="https://arxiv.org/abs/2404.08518" target="_blank" rel="noreferrer">Open arXiv</a>
               <a class="button" href="https://arxiv.org/pdf/2404.08518" target="_blank" rel="noreferrer">Paper PDF</a>
+            </div>
+            <div class="sync-status" aria-label="Paper synchronization status">
+              <span class="sync-status-label"><i aria-hidden="true"></i>Automatic arXiv sync</span>
+              <span id="syncStatusText">Current through v9; checked 8 Sep 2026.</span>
+              <a id="syncSourceLink" href="https://arxiv.org/html/2404.08518v9#S8.SS8" target="_blank" rel="noreferrer">Release record</a>
             </div>
           </div>
 
@@ -180,8 +187,8 @@
             <p class="eyebrow">Open to solved</p>
             <h2>Version-change feed</h2>
             <p>
-              This feed follows the paper's own change log. Dates are arXiv version dates where available, not necessarily
-              the date a mathematical solution was first discovered.
+              This feed is synchronized from the paper's own change log. Dates are arXiv version dates where available,
+              not necessarily the date a mathematical solution was first discovered.
             </p>
           </div>
           <div id="updateLog" class="update-log"></div>
@@ -247,8 +254,8 @@
     <footer class="footer">
       <div class="section-inner">
         <p>
-          Data seed: arXiv:2404.08518v8 by Bogdan Grechuk. This is a local monitoring interface, not an official version
-          of the paper.
+          Data synchronized through <span id="footerPaperVersion">arXiv:2404.08518v9</span> by Bogdan Grechuk.
+          This is an independent monitoring interface, not an official version of the paper.
         </p>
       </div>
     </footer>
