@@ -101,6 +101,84 @@ window.PAPER_SYNC = {
       "detectedBy": "paper-change-log"
     }
   ],
+  "sourceRemaps": [
+    {
+      "idPrefix": "rational-equations-3-5-",
+      "source": "Rational equations (4)-(6)"
+    },
+    {
+      "id": "narrative-three-monomial-26a",
+      "source": "Equation (12a)"
+    },
+    {
+      "id": "narrative-three-monomial-26b",
+      "source": "Equation (12b)"
+    },
+    {
+      "id": "narrative-three-monomial-26c",
+      "source": "Equation (13)"
+    },
+    {
+      "id": "narrative-genus2-32",
+      "source": "Equation (15)"
+    },
+    {
+      "id": "narrative-sym-hom-40",
+      "source": "Equation (16)"
+    },
+    {
+      "id": "narrative-cyclic-hom-40",
+      "source": "Equation (17)"
+    },
+    {
+      "id": "narrative-fin-symmetric-27",
+      "source": "Equation (20)"
+    },
+    {
+      "id": "narrative-fin-independent-29",
+      "source": "Equation (21)"
+    },
+    {
+      "id": "narrative-fin-three-monomial-42",
+      "source": "Equation (24)"
+    },
+    {
+      "id": "narrative-finhom-80",
+      "source": "Equation (25)"
+    },
+    {
+      "id": "narrative-cubic-35",
+      "source": "Equation (26)"
+    },
+    {
+      "id": "narrative-independent-36a",
+      "source": "Equation (27)"
+    },
+    {
+      "id": "narrative-independent-36b",
+      "source": "Equation (28)"
+    },
+    {
+      "id": "narrative-sym-39",
+      "source": "Equation (29)"
+    },
+    {
+      "id": "narrative-three-monomial-46",
+      "source": "Equation (30)"
+    },
+    {
+      "idPrefix": "table-12-",
+      "source": "Table 13"
+    },
+    {
+      "idPrefix": "table-13-",
+      "source": "Table 14"
+    },
+    {
+      "idPrefix": "table-14-",
+      "source": "Table 15"
+    }
+  ],
   "openAdditions": [
     {
       "id": "sync-v9-p2-h23-minus-x-minus-1",

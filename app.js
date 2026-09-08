@@ -1,4 +1,10 @@
-const PAPER_SYNC = window.PAPER_SYNC || { paper: {}, resolvedEntries: [], openAdditions: [], events: [] };
+const PAPER_SYNC = window.PAPER_SYNC || {
+  paper: {},
+  resolvedEntries: [],
+  sourceRemaps: [],
+  openAdditions: [],
+  events: [],
+};
 const BASE_SOURCE_VERSION = "v8";
 
 const SOURCE = {
@@ -555,7 +561,12 @@ function allEntries() {
   }));
 
   const resolutions = new Map((PAPER_SYNC.resolvedEntries || []).map((resolution) => [resolution.id, resolution]));
-  const trackedOpen = [...currentOpen, ...(PAPER_SYNC.openAdditions || [])];
+  const trackedOpen = [...currentOpen, ...(PAPER_SYNC.openAdditions || [])].map((entry) => {
+    const sourceRemap = (PAPER_SYNC.sourceRemaps || []).find((rule) => (
+      rule.id === entry.id || (rule.idPrefix && entry.id.startsWith(rule.idPrefix))
+    ));
+    return sourceRemap ? { ...entry, source: sourceRemap.source } : entry;
+  });
   const synchronizedOpen = trackedOpen.filter((entry) => !resolutions.has(entry.id));
   const synchronizedArchive = trackedOpen
     .filter((entry) => resolutions.has(entry.id))
