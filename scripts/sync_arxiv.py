@@ -25,8 +25,9 @@ USER_AGENT = (
 )
 SYNC_PREFIX = "window.PAPER_SYNC = "
 CHECKPOINT_DAYS = 30
-MIN_BODY_COVERAGE = 0.60
-MAX_RESOLUTION_SHARE = 0.30
+# A release may legitimately resolve whole tables. Validate how much of the
+# catalogue is accounted for, rather than imposing a cap on mathematical progress.
+MIN_ACCOUNTED_COVERAGE = 0.95
 
 
 class SyncError(RuntimeError):
@@ -159,6 +160,24 @@ def unwrap_command(value: str, command_pattern: str) -> str:
     return match.group(1) if match else value
 
 
+def normalize_monomials(value: str) -> str:
+    """Sort factors in simple polynomial terms, without interpreting arbitrary TeX."""
+    if not re.fullmatch(r"[a-z0-9^*+()=\-]+", value):
+        return value
+    parts = re.split(r"([+()=\-])", value)
+    normalized = []
+    for part in parts:
+        if not part or part in "+()-=" or part.isdigit():
+            normalized.append(part)
+            continue
+        if not re.fullmatch(r"(?:\d+\*?)?[a-z](?:\^\d+)?(?:\*?[a-z](?:\^\d+)?)*", part):
+            return value
+        coefficient = re.match(r"\d*", part).group()
+        factors = re.findall(r"[a-z](?:\^\d+)?", part)
+        normalized.append(coefficient + "".join(sorted(factors)))
+    return "".join(normalized)
+
+
 def normalize_equation(value: str) -> str:
     value = value.strip().strip("$ ")
     previous = None
@@ -190,7 +209,7 @@ def normalize_equation(value: str) -> str:
     value = re.sub(r"_\{([^{}]+)\}", r"_\1", value)
     value = value.replace("{", "").replace("}", "")
     value = re.sub(r"\s+", "", value)
-    return value.rstrip(".,;")
+    return normalize_monomials(value.rstrip(".,;"))
 
 
 MATH_PATTERN = re.compile(
@@ -207,9 +226,20 @@ def extract_math(source: str) -> list[str]:
     for match in MATH_PATTERN.finditer(source):
         chunk = next((group for group in match.groups() if group is not None), "")
         chunk = re.sub(r"\\label\{[^{}]+\}", "", chunk)
-        normalized = normalize_equation(chunk)
-        if normalized:
-            chunks.append(normalized)
+        # Treat table/array cells as separate expressions. Substring matching
+        # would confuse x^2=1 with 2x^2=10 and miss reordered monomial factors.
+        chunk = re.sub(r"\\begin\{array\}(?:\[[^]]*\])?\{[^{}]*\}", "", chunk)
+        chunk = re.sub(r"\\(?:begin|end)\{(?:array|aligned|split)\}", "", chunk)
+        chunk = re.sub(r"\\[,;!]", "", chunk)
+        chunk = re.sub(r"&\s*(?=[=<>])", "", chunk)
+        chunk = re.sub(r"([=<>])\s*&", r"\1", chunk)
+        for expression in re.split(
+            r"\\\\(?:\[[^]]*\])?|&|[,;]|\\(?:qquad|quad|Leftrightarrow)\b", chunk,
+        ):
+            expression = re.sub(r"^\s*\([a-z]\)\s+(?=\S)", "", expression)
+            normalized = normalize_equation(expression)
+            if normalized:
+                chunks.append(normalized)
     return chunks
 
 
@@ -230,7 +260,10 @@ def extract_change_section(source: str, old_number: int, new_number: int) -> str
     match = heading.search(source)
     if not match:
         raise SyncError(f"No change subsection found for v{old_number} to v{new_number}")
-    next_heading = re.search(r"\\(?:subsection|section)\{", source[match.end():])
+    next_heading = re.search(
+        r"\\(?:subsection|section)\{|\\begin\{thebibliography\}|\\end\{document\}",
+        source[match.end():],
+    )
     end = match.end() + next_heading.start() if next_heading else len(source)
     return source[match.end():end]
 
@@ -238,7 +271,50 @@ def extract_change_section(source: str, old_number: int, new_number: int) -> str
 def equation_present(target: str, corpus: list[str]) -> bool:
     if len(target) < 5 or "=" not in target:
         return False
-    return any(target == candidate or target in candidate for candidate in corpus)
+    return target in corpus
+
+
+def resolution_math(change_section: str) -> list[str]:
+    """Return equations in paragraphs explicitly reporting a solved/removed group.
+
+    A mention alone is not evidence of resolution. Ambiguous or negated closure
+    language is deliberately left for review rather than changing entry status.
+    """
+    affirmative = re.compile(
+        r"\b(?:(?:has|have)\s+(?:therefore\s+)?been|was|were)\s+"
+        r"(?:solved|removed|excluded)\b", re.I,
+    )
+    uncertain = re.compile(
+        r"\b(?:not|never|unsolved|unresolved)\b|\b(?:still|remains?|remain)\s+open\b",
+        re.I,
+    )
+    expressions = []
+    for paragraph in re.split(r"\n\s*\n", change_section):
+        # Negations in displayed mathematics or a proof (e.g. 'not a square')
+        # do not negate a separate sentence explicitly reporting a removal.
+        sentences = re.split(r"(?<=[.!?])\s+", paragraph)
+        prose = [MATH_PATTERN.sub(" ", sentence) for sentence in sentences]
+        # A pronoun-only negative status cannot safely be attached to a specific
+        # equation. Do not let another sentence's removal override it.
+        ambiguous_status = re.compile(
+            r"\b(?:not|never)\s+(?:been\s+)?(?:solved|removed|excluded)\b"
+            r"|\b(?:unsolved|unresolved)\b|\b(?:still|remains?|remain)\s+open\b", re.I,
+        )
+        if any(
+            ambiguous_status.search(text) and not extract_math(sentence)
+            for sentence, text in zip(sentences, prose)
+        ):
+            continue
+        evidence = any(affirmative.search(s) and not uncertain.search(s) for s in prose)
+        blocked = {
+            equation
+            for sentence, text in zip(sentences, prose)
+            if uncertain.search(text)
+            for equation in extract_math(sentence)
+        }
+        if evidence:
+            expressions.extend(eq for eq in extract_math(paragraph) if eq not in blocked)
+    return expressions
 
 
 def detect_resolved_entries(
@@ -249,9 +325,13 @@ def detect_resolved_entries(
 ) -> tuple[list[dict], dict]:
     uncommented = strip_tex_comments(tex_source)
     main_body = uncommented[:changes_start(uncommented)]
-    change_section = extract_change_section(uncommented, old_number, new_number)
+    change_section = "\n\n".join(
+        extract_change_section(uncommented, number - 1, number)
+        for number in range(old_number + 1, new_number + 1)
+    )
     main_math = extract_math(main_body)
     change_math = extract_math(change_section)
+    supported_math = resolution_math(change_section)
 
     tracked = [entry for entry in entries if normalize_equation(entry.get("equation", ""))]
     still_present = sum(
@@ -259,34 +339,38 @@ def detect_resolved_entries(
         for entry in tracked
     )
     coverage = still_present / max(len(tracked), 1)
-    if coverage < MIN_BODY_COVERAGE:
-        raise SyncError(
-            f"Only {coverage:.0%} of tracked open entries were found in the new paper body; "
-            "the source format may have changed"
-        )
-
     resolved = []
     for entry in tracked:
         equation = normalize_equation(entry["equation"])
-        if equation_present(equation, change_math) and not equation_present(equation, main_math):
+        if equation_present(equation, supported_math) and not equation_present(equation, main_math):
             resolved.append(entry)
 
-    share = len(resolved) / max(len(tracked), 1)
-    if share > MAX_RESOLUTION_SHARE:
+    resolved_ids = {entry["id"] for entry in resolved}
+    unexplained = [
+        entry["id"] for entry in tracked
+        if entry["id"] not in resolved_ids
+        and not equation_present(normalize_equation(entry["equation"]), main_math)
+    ]
+    accounted = (still_present + len(resolved)) / max(len(tracked), 1)
+    if tracked and accounted < MIN_ACCOUNTED_COVERAGE:
         raise SyncError(
-            f"The parser classified {share:.0%} of open entries as resolved; refusing a large automatic change"
+            f"Only {accounted:.0%} of tracked open entries are accounted for by the new paper "
+            f"body or explicit resolution evidence; {len(unexplained)} unexplained entries: "
+            + ", ".join(unexplained)
         )
 
     report = {
         "trackedOpenEntries": len(tracked),
+        "coverageVersions": f"v{old_number} to v{new_number}",
         "entriesStillPresent": still_present,
         "bodyCoverage": round(coverage, 4),
+        "accountedCoverage": round(accounted, 4),
+        "unexplainedOpenEntries": len(unexplained),
+        "unexplainedEntryIds": unexplained,
         "changeMathExpressions": len(change_math),
         "resolvedEntryAppearances": len(resolved),
         "resolvedUniqueEquations": len({normalize_equation(entry["equation"]) for entry in resolved}),
-        "changeLogHasResolutionLanguage": bool(
-            re.search(r"\b(?:solved|removed|excluded)\b", change_section, flags=re.I)
-        ),
+        "changeLogHasResolutionLanguage": bool(supported_math),
     }
     return resolved, report
 
@@ -346,7 +430,7 @@ def make_resolution(entry: dict, old_number: int, new_number: int, date: str) ->
         "resolvedIn": version_label,
         "resolvedDate": date,
         "note": (
-            f"Automatically matched to the paper's {version_label} change log and no longer "
+            f"Automatically matched to explicit resolution evidence in the paper's {version_label} change log and no longer "
             "present in the current open catalogue."
         ),
         "links": [change_url],
@@ -365,7 +449,7 @@ def make_event(
     if resolved:
         bullets = [
             f"{len(resolved)} tracked appearance(s), representing {unique_equations} equation(s), moved to the solved archive.",
-            "Each match appears in the release change log and is absent from the new paper's open body.",
+            "Each match has explicit resolution evidence in the release change log and is absent from the new paper's open body.",
         ]
     else:
         bullets = [
@@ -408,28 +492,41 @@ def synchronize(
             raise SyncError("A newer version requires TeX source")
         open_entries = effective_open_entries(catalogue)
         known_resolved = {entry["id"] for entry in sync.get("resolvedEntries", [])}
+        # The downloaded body belongs to the latest release. Validate all unseen
+        # changes together so later resolutions do not look like unexplained
+        # disappearances while processing an earlier release during catch-up.
+        resolved, coverage_report = detect_resolved_entries(
+            open_entries, tex_source, current_number, latest_number,
+        )
+        uncommented = strip_tex_comments(tex_source)
 
         for new_number in range(current_number + 1, latest_number + 1):
             old_number = new_number - 1
-            resolved, report = detect_resolved_entries(
-                open_entries,
-                tex_source,
-                old_number,
-                new_number,
-            )
+            change_section = extract_change_section(uncommented, old_number, new_number)
+            release_math = resolution_math(change_section)
+            new_resolutions = [
+                entry for entry in resolved if entry["id"] not in known_resolved
+                and equation_present(normalize_equation(entry["equation"]), release_math)
+            ]
+            report = dict(coverage_report)
+            report.update({
+                "changeMathExpressions": len(extract_math(change_section)),
+                "resolvedEntryAppearances": len(new_resolutions),
+                "resolvedUniqueEquations": len({
+                    normalize_equation(entry["equation"]) for entry in new_resolutions
+                }),
+                "changeLogHasResolutionLanguage": bool(release_math),
+            })
             report["version"] = f"v{old_number} to v{new_number}"
             reports.append(report)
             release_date = metadata["history"].get(
                 f"v{new_number}", metadata["revisionDate"]
             )
-            new_resolutions = [entry for entry in resolved if entry["id"] not in known_resolved]
             sync.setdefault("resolvedEntries", []).extend(
                 make_resolution(entry, old_number, new_number, release_date)
                 for entry in new_resolutions
             )
             known_resolved.update(entry["id"] for entry in new_resolutions)
-            removed_ids = {entry["id"] for entry in new_resolutions}
-            open_entries = [entry for entry in open_entries if entry["id"] not in removed_ids]
             sync.setdefault("events", []).append(
                 make_event(old_number, new_number, release_date, new_resolutions, report)
             )

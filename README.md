@@ -54,12 +54,16 @@ When arXiv publishes a new version, `scripts/sync_arxiv.py`:
 
 1. Downloads the versioned TeX source from arXiv.
 2. Reads every unseen "Changes between versions" subsection.
-3. Matches tracked equations mentioned there against the new paper body.
-4. Moves an entry to the solved archive only when it is present in the change log and absent from the current open body.
+3. Matches complete equations against the new paper body, recognizing simple reordered monomial factors such as `xy^2` and `y^2x`.
+4. Moves an entry to the solved archive only when its change-log paragraph explicitly reports a resolution or removal and the equation is absent from the current open body. Mere mentions and negated resolution claims do not qualify.
 5. Updates `data/paper-sync.js`, commits it with the GitHub Actions bot, and lets GitHub Pages republish the site.
 
-The parser checks source structure, catalogue coverage, and the size of each proposed status change. It fails without
-committing if those checks indicate that the paper format has changed. A monthly successful-check commit keeps the
+The parser checks source structure and requires at least 95% of tracked open entries to be accounted for by either
+the current paper body or explicit resolution evidence. It reports any unexplained entries and keeps them open.
+Large documented releases can therefore remove entire tables without hitting an arbitrary percentage cap; unsupported
+mass disappearances still fail without committing. When catching up across releases, coverage is checked against all
+unseen change sections before attributing removals to individual releases. Parser regression tests run on pull requests
+and relevant pushes; a parser change on `main` also triggers a full synchronization. A monthly successful-check commit keeps the
 schedule active on an otherwise quiet public repository and exposes the latest check date on the site.
 
 Run the same checks locally with:

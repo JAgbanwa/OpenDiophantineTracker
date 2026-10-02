@@ -4,16 +4,46 @@ on:
   schedule:
     - cron: "17 */12 * * *"
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - scripts/**
+      - tests/**
+      - .github/workflows/sync-arxiv.yml
+  pull_request:
+    paths:
+      - scripts/**
+      - tests/**
+      - .github/workflows/sync-arxiv.yml
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
-  group: synchronize-arxiv-paper
+  group: synchronize-arxiv-paper-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out tracker
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Verify synchronization parser
+        run: python -m unittest discover -s tests -v
+
   synchronize:
+    needs: verify
+    if: github.event_name != 'pull_request'
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -26,8 +56,10 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Verify synchronization parser
-        run: python -m unittest discover -s tests -v
+      - name: Set up Node for catalogue export
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
 
       - name: Check arXiv and update ledger
         run: python scripts/sync_arxiv.py
