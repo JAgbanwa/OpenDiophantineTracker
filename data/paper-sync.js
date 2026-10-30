@@ -2,12 +2,12 @@ window.PAPER_SYNC = {
   "schemaVersion": 1,
   "paper": {
     "arxivId": "2404.08518",
-    "version": "v10",
-    "revisionDate": "1 Oct 2026",
-    "checkedAt": "2026-10-02",
-    "syncedAt": "2026-10-02",
-    "versionUrl": "https://arxiv.org/abs/2404.08518v10",
-    "changeUrl": "https://arxiv.org/html/2404.08518v10#S8"
+    "version": "v11",
+    "revisionDate": "29 Oct 2026",
+    "checkedAt": "2026-10-30",
+    "syncedAt": "2026-10-30",
+    "versionUrl": "https://arxiv.org/abs/2404.08518v11",
+    "changeUrl": "https://arxiv.org/html/2404.08518v11#S8"
   },
   "resolvedEntries": [
     {
@@ -619,6 +619,216 @@ window.PAPER_SYNC = {
         "https://arxiv.org/html/2404.08518v10#S8"
       ],
       "detectedBy": "paper-change-log"
+    },
+    {
+      "id": "rational-equations-3-5-1",
+      "resolvedIn": "v10 to v11",
+      "resolvedDate": "29 Oct 2026",
+      "note": "Automatically matched to explicit resolution evidence in the paper's v10 to v11 change log and no longer present in the current open catalogue.",
+      "links": [
+        "https://arxiv.org/html/2404.08518v11#S8"
+      ],
+      "detectedBy": "paper-change-log"
+    },
+    {
+      "id": "rational-equations-3-5-2",
+      "resolvedIn": "v10 to v11",
+      "resolvedDate": "29 Oct 2026",
+      "note": "Automatically matched to explicit resolution evidence in the paper's v10 to v11 change log and no longer present in the current open catalogue.",
+      "links": [
+        "https://arxiv.org/html/2404.08518v11#S8"
+      ],
+      "detectedBy": "paper-change-log"
+    },
+    {
+      "id": "rational-equations-3-5-3",
+      "resolvedIn": "v10 to v11",
+      "resolvedDate": "29 Oct 2026",
+      "note": "Automatically matched to explicit resolution evidence in the paper's v10 to v11 change log and no longer present in the current open catalogue.",
+      "links": [
+        "https://arxiv.org/html/2404.08518v11#S8"
+      ],
+      "detectedBy": "paper-change-log"
+    },
+    {
+      "id": "table-2-1",
+      "resolvedIn": "v10 to v11",
+      "resolvedDate": "29 Oct 2026",
+      "note": "Automatically matched to explicit resolution evidence in the paper's v10 to v11 change log and no longer present in the current open catalogue.",
+      "links": [
+        "https://arxiv.org/html/2404.08518v11#S8"
+      ],
+      "detectedBy": "paper-change-log"
+    },
+    {
+      "id": "table-2-3",
+      "resolvedIn": "v10 to v11",
+      "resolvedDate": "29 Oct 2026",
+      "note": "Automatically matched to explicit resolution evidence in the paper's v10 to v11 change log and no longer present in the current open catalogue.",
+      "links": [
+        "https://arxiv.org/html/2404.08518v11#S8"
+      ],
+      "detectedBy": "paper-change-log"
+    },
+    {
+      "id": "table-2-4",
+      "resolvedIn": "v10 to v11",
+      "resolvedDate": "29 Oct 2026",
+      "note": "Automatically matched to explicit resolution evidence in the paper's v10 to v11 change log and no longer present in the current open catalogue.",
+      "links": [
+        "https://arxiv.org/html/2404.08518v11#S8"
+      ],
+      "detectedBy": "paper-change-log"
+    },
+    {
+      "id": "table-2-5",
+      "resolvedIn": "v10 to v11",
+      "resolvedDate": "29 Oct 2026",
+      "note": "Automatically matched to explicit resolution evidence in the paper's v10 to v11 change log and no longer present in the current open catalogue.",
+      "links": [
+        "https://arxiv.org/html/2404.08518v11#S8"
+      ],
+      "detectedBy": "paper-change-log"
+    },
+    {
+      "id": "table-2-6",
+      "resolvedIn": "v10 to v11",
+      "resolvedDate": "29 Oct 2026",
+      "note": "Automatically matched to explicit resolution evidence in the paper's v10 to v11 change log and no longer present in the current open catalogue.",
+      "links": [
+        "https://arxiv.org/html/2404.08518v11#S8"
+      ],
+      "detectedBy": "paper-change-log"
+    },
+    {
+      "id": "table-2-7",
+      "resolvedIn": "v10 to v11",
+      "resolvedDate": "29 Oct 2026",
+      "note": "Automatically matched to explicit resolution evidence in the paper's v10 to v11 change log and no longer present in the current open catalogue.",
+      "links": [
+        "https://arxiv.org/html/2404.08518v11#S8"
+      ],
+      "detectedBy": "paper-change-log"
+    },
+    {
+      "id": "table-2-8",
+      "resolvedIn": "v10 to v11",
+      "resolvedDate": "29 Oct 2026",
+      "note": "Automatically matched to explicit resolution evidence in the paper's v10 to v11 change log and no longer present in the current open catalogue.",
+      "links": [
+        "https://arxiv.org/html/2404.08518v11#S8"
+      ],
+      "detectedBy": "paper-change-log"
+    },
+    {
+      "id": "table-2-9",
+      "resolvedIn": "v10 to v11",
+      "resolvedDate": "29 Oct 2026",
+      "note": "Automatically matched to explicit resolution evidence in the paper's v10 to v11 change log and no longer present in the current open catalogue.",
+      "links": [
+        "https://arxiv.org/html/2404.08518v11#S8"
+      ],
+      "detectedBy": "paper-change-log"
+    },
+    {
+      "id": "table-2-11",
+      "resolvedIn": "v10 to v11",
+      "resolvedDate": "29 Oct 2026",
+      "note": "Automatically matched to explicit resolution evidence in the paper's v10 to v11 change log and no longer present in the current open catalogue.",
+      "links": [
+        "https://arxiv.org/html/2404.08518v11#S8"
+      ],
+      "detectedBy": "paper-change-log"
+    },
+    {
+      "id": "table-2-12",
+      "resolvedIn": "v10 to v11",
+      "resolvedDate": "29 Oct 2026",
+      "note": "Automatically matched to explicit resolution evidence in the paper's v10 to v11 change log and no longer present in the current open catalogue.",
+      "links": [
+        "https://arxiv.org/html/2404.08518v11#S8"
+      ],
+      "detectedBy": "paper-change-log"
+    },
+    {
+      "id": "table-2-13",
+      "resolvedIn": "v10 to v11",
+      "resolvedDate": "29 Oct 2026",
+      "note": "Automatically matched to explicit resolution evidence in the paper's v10 to v11 change log and no longer present in the current open catalogue.",
+      "links": [
+        "https://arxiv.org/html/2404.08518v11#S8"
+      ],
+      "detectedBy": "paper-change-log"
+    },
+    {
+      "id": "table-2-17",
+      "resolvedIn": "v10 to v11",
+      "resolvedDate": "29 Oct 2026",
+      "note": "Automatically matched to explicit resolution evidence in the paper's v10 to v11 change log and no longer present in the current open catalogue.",
+      "links": [
+        "https://arxiv.org/html/2404.08518v11#S8"
+      ],
+      "detectedBy": "paper-change-log"
+    },
+    {
+      "id": "table-2-18",
+      "resolvedIn": "v10 to v11",
+      "resolvedDate": "29 Oct 2026",
+      "note": "Automatically matched to explicit resolution evidence in the paper's v10 to v11 change log and no longer present in the current open catalogue.",
+      "links": [
+        "https://arxiv.org/html/2404.08518v11#S8"
+      ],
+      "detectedBy": "paper-change-log"
+    },
+    {
+      "id": "narrative-genus2-32",
+      "resolvedIn": "v10 to v11",
+      "resolvedDate": "29 Oct 2026",
+      "note": "Automatically matched to explicit resolution evidence in the paper's v10 to v11 change log and no longer present in the current open catalogue.",
+      "links": [
+        "https://arxiv.org/html/2404.08518v11#S8"
+      ],
+      "detectedBy": "paper-change-log"
+    },
+    {
+      "id": "table-6-8",
+      "resolvedIn": "v10 to v11",
+      "resolvedDate": "29 Oct 2026",
+      "note": "Automatically matched to explicit resolution evidence in the paper's v10 to v11 change log and no longer present in the current open catalogue.",
+      "links": [
+        "https://arxiv.org/html/2404.08518v11#S8"
+      ],
+      "detectedBy": "paper-change-log"
+    },
+    {
+      "id": "table-6-10",
+      "resolvedIn": "v10 to v11",
+      "resolvedDate": "29 Oct 2026",
+      "note": "Automatically matched to explicit resolution evidence in the paper's v10 to v11 change log and no longer present in the current open catalogue.",
+      "links": [
+        "https://arxiv.org/html/2404.08518v11#S8"
+      ],
+      "detectedBy": "paper-change-log"
+    },
+    {
+      "id": "table-8-1",
+      "resolvedIn": "v10 to v11",
+      "resolvedDate": "29 Oct 2026",
+      "note": "Automatically matched to explicit resolution evidence in the paper's v10 to v11 change log and no longer present in the current open catalogue.",
+      "links": [
+        "https://arxiv.org/html/2404.08518v11#S8"
+      ],
+      "detectedBy": "paper-change-log"
+    },
+    {
+      "id": "table-8-3",
+      "resolvedIn": "v10 to v11",
+      "resolvedDate": "29 Oct 2026",
+      "note": "Automatically matched to explicit resolution evidence in the paper's v10 to v11 change log and no longer present in the current open catalogue.",
+      "links": [
+        "https://arxiv.org/html/2404.08518v11#S8"
+      ],
+      "detectedBy": "paper-change-log"
     }
   ],
   "sourceRemaps": [
@@ -1026,20 +1236,55 @@ window.PAPER_SYNC = {
         "changeLogHasResolutionLanguage": true,
         "version": "v9 to v10"
       }
+    },
+    {
+      "version": "v10 to v11",
+      "date": "29 Oct 2026",
+      "headline": "Automatic arXiv release synchronization.",
+      "bullets": [
+        "21 tracked appearance(s), representing 21 equation(s), moved to the solved archive.",
+        "Each match has explicit resolution evidence in the release change log and is absent from the new paper's open body."
+      ],
+      "links": [
+        "https://arxiv.org/html/2404.08518v11#S8"
+      ],
+      "generated": true,
+      "report": {
+        "trackedOpenEntries": 112,
+        "coverageVersions": "v10 to v11",
+        "entriesStillPresent": 88,
+        "bodyCoverage": 0.7857,
+        "accountedCoverage": 0.9732,
+        "unexplainedOpenEntries": 3,
+        "unexplainedEntryIds": [
+          "table-12-9",
+          "table-12-12",
+          "table-12-18"
+        ],
+        "changeMathExpressions": 61,
+        "resolvedEntryAppearances": 21,
+        "resolvedUniqueEquations": 21,
+        "changeLogHasResolutionLanguage": true,
+        "version": "v10 to v11"
+      }
     }
   ],
   "lastReport": {
-    "trackedOpenEntries": 164,
-    "coverageVersions": "v9 to v10",
-    "entriesStillPresent": 112,
-    "bodyCoverage": 0.6829,
-    "accountedCoverage": 1.0,
-    "unexplainedOpenEntries": 0,
-    "unexplainedEntryIds": [],
-    "changeMathExpressions": 115,
-    "resolvedEntryAppearances": 52,
-    "resolvedUniqueEquations": 51,
+    "trackedOpenEntries": 112,
+    "coverageVersions": "v10 to v11",
+    "entriesStillPresent": 88,
+    "bodyCoverage": 0.7857,
+    "accountedCoverage": 0.9732,
+    "unexplainedOpenEntries": 3,
+    "unexplainedEntryIds": [
+      "table-12-9",
+      "table-12-12",
+      "table-12-18"
+    ],
+    "changeMathExpressions": 61,
+    "resolvedEntryAppearances": 21,
+    "resolvedUniqueEquations": 21,
     "changeLogHasResolutionLanguage": true,
-    "version": "v9 to v10"
+    "version": "v10 to v11"
   }
 };
